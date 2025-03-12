@@ -23,7 +23,10 @@ public class AS3_1 {
             CRobotUtil.Log(TAG, "Rev. " + mem.FirmwareRev.get());
             
             Byte[] ids = motion.getDefaultIDs();
-            ServoRangeTool srt = ServoRangeTool.Load();
+            // ServoRangeTool srt = ServoRangeTool.Load();
+            ServoRangeTool srt = new ServoRangeTool(ids);
+            ServoRangeTool.Load();
+
 
             // turning off the motor
             CRobotUtil.Log(TAG, "Servo Motors Off");
@@ -33,7 +36,7 @@ public class AS3_1 {
 //            srt.Load();
 
 //            srt.printMotorRanges();
-            long lastTime = System.currentTimeMillis();
+            // long lastTime = System.currentTimeMillis();
             // clear screen and move cursor to top left
             System.out.print("\033[H\033[2J"); System.out.flush();
             // Enter the while loop
@@ -48,10 +51,12 @@ public class AS3_1 {
 //                }
                 srt.register(pos);
                 
-                if(System.currentTimeMillis() - lastTime > 3000){
-                    srt.printMotorRanges();
-                    lastTime = System.currentTimeMillis();                    
-                }
+                // if(System.currentTimeMillis() - lastTime > 3000){
+                //     srt.printMotorRanges();
+                //     lastTime = System.currentTimeMillis();                    
+                // }
+                srt.printMotorRanges();
+
 
 //                System.out.println();
 //                srt.printMotorRanges();
