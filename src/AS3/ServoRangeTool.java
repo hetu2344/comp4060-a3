@@ -107,9 +107,10 @@ public class ServoRangeTool implements Serializable {
     /// ====================
     public RealVector calcAngles(CRobotPose pose) { // convert pose in motor positions to radians
         RealVector angles = MatrixUtils.createRealVector(new double[NUM_MOTORS]);
-        for (int i = 0; i < _motorRanges_rad.size(); i++) {
+        for (int i = 0; i < angles.getDimension(); i++) {
             // Add entries of motors to the angles vector
             // Convert the motor position to radians
+            // Note: use servoIDs[i] to get the servoID
             angles.setEntry(i, posToRad(servoIDs[i], pose.getServoAngle(servoIDs[i])));
         }
         return angles;
