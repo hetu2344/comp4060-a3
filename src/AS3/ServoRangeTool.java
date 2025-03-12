@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealVector;
 
 import jp.vstone.RobotLib.CRobotPose;
@@ -20,7 +21,8 @@ public class ServoRangeTool implements Serializable {
     private Short[] _minpos = null; // internal arrays for precalcualted values
     private Short[] _maxpos = null;
     private Short[] _midpos = null;
-    private Map<Byte, Integer> IDtoIndex = null; // index of the motor in a data array
+    private Map<Byte, Integer> IDtoIndex = null; 
+    private Map<Byte, Double[]> _motorRanges_rad = null; 
 
     final static String FILENAME = "../resources/robot_pose.txt"; // file destination
 
@@ -39,6 +41,15 @@ public class ServoRangeTool implements Serializable {
         IDtoIndex.put(this.servoIDs[5], 5);
         IDtoIndex.put(this.servoIDs[6], 6);
         IDtoIndex.put(this.servoIDs[7], 7);
+        this._motorRanges_rad = new HashMap<Byte, Double[]>(); // map of servoID to min, max pos in radians
+        _motorRanges_rad.put(CSotaMotion.SV_BODY_Y, new Double[] { -1.077363736, 1.077363736 });
+        _motorRanges_rad.put(CSotaMotion.SV_L_SHOULDER, new Double[] { -2.617993878, 1.745329252 });
+        _motorRanges_rad.put(CSotaMotion.SV_L_ELBOW, new Double[] { -1.745329252, 1.221730476 });
+        _motorRanges_rad.put(CSotaMotion.SV_R_SHOULDER, new Double[] { -1.745329252, 2.617993878 });
+        _motorRanges_rad.put(CSotaMotion.SV_R_ELBOW, new Double[] { -1.221730476, 1.745329252 });
+        _motorRanges_rad.put(CSotaMotion.SV_HEAD_Y, new Double[] { -1.495996502, 1.495996502 });
+        _motorRanges_rad.put(CSotaMotion.SV_HEAD_P, new Double[] { -2.617993878, 2.617993878 });
+        _motorRanges_rad.put(CSotaMotion.SV_HEAD_R, new Double[] { -1.495996502, 1.495996502 });
     }
 
     public void register(CRobotPose pose) {
@@ -94,7 +105,11 @@ public class ServoRangeTool implements Serializable {
     /// ==================== Angle <-> motor pos conversions
     /// ====================
     public RealVector calcAngles(CRobotPose pose) { // convert pose in motor positions to radians
-        return null; // TODO
+        RealVector angles = MatrixUtils.createRealVector(new double[NUM_MOTORS]);
+        for (int i = 0; i < NUM_MOTORS; i++) {
+            angles.setEntry(i, posToRad(servoIDs[i], pose.getServoAngle(servoIDs[i])));
+        }
+        return angles; // TODO
     }
 
     public CRobotPose calcMotorValues(RealVector angles) { // convert pose in angles to motor positions
@@ -102,7 +117,17 @@ public class ServoRangeTool implements Serializable {
     }
 
     private double posToRad(Byte servoID, Short pos) { // convert motor position to angle, in radians
-        return 0; // TODO
+        if (! _motorRanges_rad.containsKey(servoID)) {
+            throw new IllegalArgumentException("Servo ID not found in motor ranges");
+        }
+        Double[] radianLimits = _motorRanges_rad.get(servoID); // get min & max radian limits of selected servoID
+        Short[] posLimits = new Short[] { _minpos[IDtoIndex.get(servoID)], _maxpos[IDtoIndex.get(servoID)] }; // get min & max motor limits of selected servoID
+        double rad_min = radianLimits[0];
+        double rad_max = radianLimits[1];
+        double pos_min = posLimits[0];
+        double pos_max = posLimits[1];
+        double rad = rad_min + (pos - pos_min) / (pos_max - pos_min) * (rad_max - rad_min);
+        return rad; // TODO
     }
 
     private short radToPos(Byte servoID, double angle) { // convert angles, in radians, to motor position
@@ -111,8 +136,7 @@ public class ServoRangeTool implements Serializable {
 
     /// ==================== Pretty Print
     /// ///====================
-    private String formattedLine(String title, Byte servoID, Short[] minpos, Short[] maxpos, Short[] middle,
-            Short[] pos) {
+    private String formattedLine(String title, Byte servoID, Short[] minpos, Short[] maxpos, Short[] middle, Short[] pos) {
         // int i = 0;
         int i = IDtoIndex.get(servoID);
         double rad = 0;
