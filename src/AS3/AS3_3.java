@@ -40,7 +40,7 @@ public class AS3_3 {
                 // Convert to radians
                 CRobotPose pose = motion.getReadPose();
                 RealVector angles = srt.calcAngles(pose);
-                // MatrixHelp.printVector(angles);
+                MatrixHelp.printVector(angles);
 
                 // Print table
                 srt.printMotorRanges(pos);
