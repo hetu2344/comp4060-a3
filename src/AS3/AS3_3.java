@@ -33,17 +33,17 @@ public class AS3_3 {
             // Enter the while loop
             while (!motion.isButton_Power()) {
                 System.out.print("\033[H");  
-
-                Short[] pos = motion.getReadpos();
                 
+                Short[] pos = motion.getReadpos();     // read motor positions into an array
                 srt.register(pos);
 
                 // Convert to radians
-                // RealVector angles = srt.calcAngles(pos);
+                CRobotPose pose = motion.getReadPose();
+                RealVector angles = srt.calcAngles(pose);
                 // MatrixHelp.printVector(angles);
 
                 // Print table
-                srt.printMotorRanges();
+                srt.printMotorRanges(pos);
 
                 CRobotUtil.wait(100);
             }

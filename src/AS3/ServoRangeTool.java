@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealVector;
@@ -106,10 +107,12 @@ public class ServoRangeTool implements Serializable {
     /// ====================
     public RealVector calcAngles(CRobotPose pose) { // convert pose in motor positions to radians
         RealVector angles = MatrixUtils.createRealVector(new double[NUM_MOTORS]);
-        for (int i = 0; i < NUM_MOTORS; i++) {
+        for (int i = 0; i < _motorRanges_rad.size(); i++) {
+            // Add entries of motors to the angles vector
+            // Convert the motor position to radians
             angles.setEntry(i, posToRad(servoIDs[i], pose.getServoAngle(servoIDs[i])));
         }
-        return angles; // TODO
+        return angles;
     }
 
     public CRobotPose calcMotorValues(RealVector angles) { // convert pose in angles to motor positions
