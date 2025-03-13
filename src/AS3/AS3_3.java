@@ -22,9 +22,9 @@ public class AS3_3 {
 
             // Load servo ranges from file created in Task 1
             ServoRangeTool srt = new ServoRangeTool(motion.getDefaultIDs()); 
-            ServoRangeTool.Load();
+            // ServoRangeTool.Load();
 
-            CRobotUtil.Log(TAG, "ServoRange Tool LOAD complete ");
+            // CRobotUtil.Log(TAG, "ServoRange Tool LOAD complete ");
 
             motion.ServoOff(); // Turn off servo execution
             CRobotUtil.Log(TAG, "Servo Motors Off");
@@ -35,14 +35,15 @@ public class AS3_3 {
                 System.out.print("\033[H");  
                 
                 Short[] pos = motion.getReadpos();     // read motor positions into an array
+                // update min - max - mid values
                 srt.register(pos);
 
                 // Convert to radians
-                CRobotPose pose = motion.getReadPose();
-                RealVector angles = srt.calcAngles(pose);
-                MatrixHelp.printVector(angles);
+                // CRobotPose pose = motion.getReadPose();
+                // RealVector angles = srt.calcAngles(pose);
+                // MatrixHelp.printVector(angles);
 
-                // Print table
+                // Print table with angles in radian
                 srt.printMotorRanges(pos);
 
                 CRobotUtil.wait(100);

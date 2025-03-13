@@ -117,7 +117,16 @@ public class ServoRangeTool implements Serializable {
     }
 
     public CRobotPose calcMotorValues(RealVector angles) { // convert pose in angles to motor positions
-        return null; // TODO
+        CRobotPose pose = new CRobotPose();
+        Map<Byte, Short> pos = new HashMap<Byte, Short>();
+        for (int i = 0; i < angles.getDimension(); i++) {
+            // Add entries of motors to the pose object
+            // Convert the angle to motor position
+            // Note: use servoIDs[i] to get the servoID
+            pos.put(servoIDs[i], radToPos(servoIDs[i], angles.getEntry(i)));
+        }
+        pose.SetPose(pos);
+        return pose; // TODO
     }
 
     private double posToRad(Byte servoID, Short pos) { // convert motor position to angle, in radians
@@ -135,7 +144,17 @@ public class ServoRangeTool implements Serializable {
     }
 
     private short radToPos(Byte servoID, double angle) { // convert angles, in radians, to motor position
-        return 0; // TODO
+        if (!_motorRanges_rad.containsKey(servoID)) {
+            throw new IllegalArgumentException("Servo ID not found in motor ranges");
+        }
+        Double[] radianLimits = _motorRanges_rad.get(servoID); // get min & max radian limits of selected servoID
+        Short[] posLimits = new Short[] { _minpos[IDtoIndex.get(servoID)], _maxpos[IDtoIndex.get(servoID)] }; // get min & max motor limits of selected servoID
+        double rad_min = radianLimits[0];
+        double rad_max = radianLimits[1];
+        double pos_min = posLimits[0];
+        double pos_max = posLimits[1];
+        short pos = (short) (pos_min + (angle - rad_min) / (rad_max - rad_min) * (pos_max - pos_min));
+        return pos; // TODO
     }
 
     /// ==================== Pretty Print
@@ -145,6 +164,7 @@ public class ServoRangeTool implements Serializable {
         int i = IDtoIndex.get(servoID);
         double rad = 0;
         if (pos != null)
+            System.out.println("Read pos["+i+"]: " + pos[i]);
             rad = posToRad(servoID, pos[i]);
         String format = "%14s %8d %8d %8d    %.2f rad";
         return String.format(format, title, minpos[i], middle[i], maxpos[i], rad);
