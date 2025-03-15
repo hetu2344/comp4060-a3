@@ -4,9 +4,7 @@ import java.io.*;
 import java.util.Map;
 import java.nio.file.Paths;
 import java.nio.file.Files;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
 
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealVector;
@@ -34,8 +32,9 @@ public class ServoRangeTool implements Serializable {
         this._maxpos = new Short[NUM_MOTORS]; // array of maxpos for 8 motors
         this._midpos = new Short[NUM_MOTORS]; // array of midpos for 8 motors
         this.IDtoIndex = new HashMap<Byte, Integer>(); // map of servoID to index in the arrays
-        IDtoIndex.put(this.servoIDs[0], 0);
-        IDtoIndex.put(this.servoIDs[1], 1);
+        // servoID = i -> index = i-1, for i >= 1 
+        IDtoIndex.put(this.servoIDs[0], 0); 
+        IDtoIndex.put(this.servoIDs[1], 1); 
         IDtoIndex.put(this.servoIDs[2], 2);
         IDtoIndex.put(this.servoIDs[3], 3);
         IDtoIndex.put(this.servoIDs[4], 4);
@@ -44,8 +43,8 @@ public class ServoRangeTool implements Serializable {
         IDtoIndex.put(this.servoIDs[7], 7);
         this._motorRanges_rad = new HashMap<Byte, Double[]>(); // map of servoID to min, max pos in radians
         _motorRanges_rad.put(CSotaMotion.SV_BODY_Y, new Double[] { -1.077363736, 1.077363736 });
-        _motorRanges_rad.put(CSotaMotion.SV_L_SHOULDER, new Double[] { -2.617993878, 1.745329252 });
-        _motorRanges_rad.put(CSotaMotion.SV_L_ELBOW, new Double[] { -1.745329252, 1.221730476 });
+        _motorRanges_rad.put(CSotaMotion.SV_L_SHOULDER, new Double[] { 2.617993878, -1.745329252 }); // swap polarity because of backward handedness
+        _motorRanges_rad.put(CSotaMotion.SV_L_ELBOW, new Double[] { 1.745329252, -1.221730476 }); // swap polarity because of backward handedness
         _motorRanges_rad.put(CSotaMotion.SV_R_SHOULDER, new Double[] { -1.745329252, 2.617993878 });
         _motorRanges_rad.put(CSotaMotion.SV_R_ELBOW, new Double[] { -1.221730476, 1.745329252 });
         _motorRanges_rad.put(CSotaMotion.SV_HEAD_Y, new Double[] { -1.495996502, 1.495996502 });
@@ -139,8 +138,8 @@ public class ServoRangeTool implements Serializable {
         double rad_max = radianLimits[1];
         double pos_min = posLimits[0];
         double pos_max = posLimits[1];
-        double rad = rad_min + (pos - pos_min) / (pos_max - pos_min) * (rad_max - rad_min);
-        return rad; // TODO
+        double rad = rad_min + (rad_max - rad_min) * ( (pos - pos_min) / (pos_max - pos_min) );
+        return rad; 
     }
 
     private short radToPos(Byte servoID, double angle) { // convert angles, in radians, to motor position
@@ -154,7 +153,7 @@ public class ServoRangeTool implements Serializable {
         double pos_min = posLimits[0];
         double pos_max = posLimits[1];
         short pos = (short) (pos_min + (angle - rad_min) / (rad_max - rad_min) * (pos_max - pos_min));
-        return pos; // TODO
+        return pos; 
     }
 
     /// ==================== Pretty Print
@@ -164,7 +163,6 @@ public class ServoRangeTool implements Serializable {
         int i = IDtoIndex.get(servoID);
         double rad = 0;
         if (pos != null)
-            System.out.println("Read pos["+i+"]: " + pos[i]);
             rad = posToRad(servoID, pos[i]);
         String format = "%14s %8d %8d %8d    %.2f rad";
         return String.format(format, title, minpos[i], middle[i], maxpos[i], rad);
@@ -176,8 +174,7 @@ public class ServoRangeTool implements Serializable {
 
     public void printMotorRanges(Short[] pos) { // will print the current position as given by the pos array
         System.out.println("-------------");
-        // Note: CSotaMotion.SV_BODY_Y returns Byte index = 0, CSotaMotion.SV_L_SHOULDER
-        // returns Byte index = 1, etc.
+        // Note: CSotaMotion.SV_BODY_Y returns Byte index = 1, CSotaMotion.SV_L_SHOULDER returns Byte index = 2, etc.
         System.out.println(formattedLine("Body Y: ", CSotaMotion.SV_BODY_Y, _minpos, _maxpos, _midpos, pos));
         System.out.println(formattedLine("L Shoulder: ", CSotaMotion.SV_L_SHOULDER, _minpos, _maxpos, _midpos, pos));
         System.out.println(formattedLine("L Elbow: ", CSotaMotion.SV_L_ELBOW, _minpos, _maxpos, _midpos, pos));

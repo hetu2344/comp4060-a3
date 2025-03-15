@@ -3,7 +3,6 @@ package AS3;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationConvention;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationOrder;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
@@ -21,7 +20,7 @@ public class MatrixHelp {  // creates homogeneous rotation matrices
             {0, sinTheta,  cosTheta,  0 },
             {0,        0,         0,  1 }
         };
-        return new Array2DRowRealMatrix(rotationMatrix);
+        return MatrixUtils.createRealMatrix(rotationMatrix);
     }
 
     public static RealMatrix rotY(double theta) { // returns a homogenous rotation matrix around the Y axis
@@ -35,7 +34,7 @@ public class MatrixHelp {  // creates homogeneous rotation matrices
             { 0,         0, 0,        1 }
         };
 
-        return new Array2DRowRealMatrix(rotationMatrix);
+        return MatrixUtils.createRealMatrix(rotationMatrix);
     }
 
     public static RealMatrix rotZ(double theta) { // returns a homogenous rotation matrix around the Z axis
@@ -48,7 +47,7 @@ public class MatrixHelp {  // creates homogeneous rotation matrices
             { 0,        0,          1, 0 },
             { 0,        0,          0, 1 }
         };
-        return new Array2DRowRealMatrix(rotationMatrix); // TODO
+        return MatrixUtils.createRealMatrix(rotationMatrix); 
     }
 
     // a 4 translation vector. assume w/normalized.
@@ -61,7 +60,7 @@ public class MatrixHelp {  // creates homogeneous rotation matrices
             {0, 0, 0, 1}
         };
         // Tranpose to get a column vector
-        return new Array2DRowRealMatrix(translationMatrix); // TODO 
+        return MatrixUtils.createRealMatrix(translationMatrix); 
     }
 
     public static RealMatrix T(RealMatrix R, double tx, double ty, double tz) { // constructs a Rt matrix
@@ -71,7 +70,7 @@ public class MatrixHelp {  // creates homogeneous rotation matrices
             {R.getEntry(2, 0), R.getEntry(2, 1), R.getEntry(2, 2), tz},
             {0, 0, 0, 1}
         };
-        return new Array2DRowRealMatrix(Rt);
+        return MatrixUtils.createRealMatrix(Rt);
     }
 
 

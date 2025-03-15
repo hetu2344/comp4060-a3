@@ -10,7 +10,7 @@ public class AS3_2 {
     public static void main(String[] args) {
         CRobotUtil.Log(TAG, "Start " + TAG);
 
-        CRobotPose pose = new CRobotPose();  // classes to manage robot pose information
+        // CRobotPose pose = new CRobotPose();  // classes to manage robot pose information
         CRobotMem mem = new CRobotMem(); // connector for the Sota's information system (VSMD), connects via internal socket.
         CSotaMotion motion = new CSotaMotion(mem);   // motion control class. Pass it an instantiated CRobotMem
 

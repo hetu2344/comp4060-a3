@@ -1,6 +1,5 @@
 package AS3;
 
-import org.apache.commons.math3.linear.RealVector;
 import jp.vstone.RobotLib.*;
 
 public class AS3_3 {
@@ -15,37 +14,39 @@ public class AS3_3 {
         CRobotMem mem = new CRobotMem(); // connector for the Sota's information system (VSMD), connects via internal socket.
         CSotaMotion motion = new CSotaMotion(mem);   // motion control class. Pass it an instantiated CRobotMem
 
-        if (mem.Connect()) {
+
+        if(mem.Connect()){
             CRobotUtil.Log(TAG, "connect " + TAG);
             motion.InitRobot_Sota();  // initialize the Sota VSMD
             CRobotUtil.Log(TAG, "Rev. " + mem.FirmwareRev.get());
-
-            // Load servo ranges from file created in Task 1
-            ServoRangeTool srt = new ServoRangeTool(motion.getDefaultIDs()); 
+            
+            Byte[] ids = motion.getDefaultIDs();
+            // ServoRangeTool srt = ServoRangeTool.Load();
+            ServoRangeTool srt = new ServoRangeTool(ids);
             // ServoRangeTool.Load();
 
-            // CRobotUtil.Log(TAG, "ServoRange Tool LOAD complete ");
-
-            motion.ServoOff(); // Turn off servo execution
+            // turning off the motor
             CRobotUtil.Log(TAG, "Servo Motors Off");
+            motion.ServoOff();
 
+            CRobotUtil.Log(TAG, "ServoRange Tool LOAD complete ");
+//            srt.Load();
+
+//            srt.printMotorRanges();
+            // long lastTime = System.currentTimeMillis();
+            // clear screen and move cursor to top left
             System.out.print("\033[H\033[2J"); System.out.flush();
             // Enter the while loop
-            while (!motion.isButton_Power()) {
-                System.out.print("\033[H");  
-                
+            while(!motion.isButton_Power()){
+                System.out.print("\033[H"); // move cursor to top left before redrawing
+
                 Short[] pos = motion.getReadpos();     // read motor positions into an array
-                // update min - max - mid values
+
                 srt.register(pos);
-
-                // Convert to radians
-                // CRobotPose pose = motion.getReadPose();
-                // RealVector angles = srt.calcAngles(pose);
-                // MatrixHelp.printVector(angles);
-
-                // Print table with angles in radian
+                
                 srt.printMotorRanges(pos);
 
+                // wait for 0.1 secs
                 CRobotUtil.wait(100);
             }
 
