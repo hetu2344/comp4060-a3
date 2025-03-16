@@ -11,25 +11,66 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
 public class MatrixHelp {  // creates homogeneous rotation matrices
     
     public static RealMatrix rotX(double theta) { // returns a homogenous rotation matrix around the X axis
-        return null; // TODO
+        double cosTheta = Math.cos(theta);
+        double sinTheta = Math.sin(theta);
+        
+        double[][] rotationMatrix = {
+            {1,        0,         0,  0 },
+            {0, cosTheta, -sinTheta,  0 },
+            {0, sinTheta,  cosTheta,  0 },
+            {0,        0,         0,  1 }
+        };
+        return MatrixUtils.createRealMatrix(rotationMatrix);
     }
 
     public static RealMatrix rotY(double theta) { // returns a homogenous rotation matrix around the Y axis
-        return null; // TODO
+        double cosTheta = Math.cos(theta);
+        double sinTheta = Math.sin(theta);
+        
+        double[][] rotationMatrix = {
+            { cosTheta,  0, sinTheta, 0 },
+            { 0,         1, 0,        0 },
+            {-sinTheta,  0, cosTheta, 0 },
+            { 0,         0, 0,        1 }
+        };
+
+        return MatrixUtils.createRealMatrix(rotationMatrix);
     }
 
     public static RealMatrix rotZ(double theta) { // returns a homogenous rotation matrix around the Z axis
-        return null; // TODO
+        double cosTheta = Math.cos(theta);
+        double sinTheta = Math.sin(theta);
+        
+        double[][] rotationMatrix = {
+            { cosTheta, -sinTheta,  0, 0 },
+            { sinTheta,  cosTheta,  0, 0 },
+            { 0,        0,          1, 0 },
+            { 0,        0,          0, 1 }
+        };
+        return MatrixUtils.createRealMatrix(rotationMatrix); 
     }
 
     // a 4 translation vector. assume w/normalized.
     public static RealMatrix trans(RealVector t) {return trans(t.getEntry(0), t.getEntry(1), t.getEntry(2));  }
     public static RealMatrix trans(double tx, double ty, double tz) { // returns a homogenous translation matrix
-        return null; // TODO
+        double[][] translationMatrix = {
+            {1, 0, 0, tx},
+            {0, 1, 0, ty},
+            {0, 0, 1, tz},
+            {0, 0, 0, 1}
+        };
+        // Tranpose to get a column vector
+        return MatrixUtils.createRealMatrix(translationMatrix); 
     }
 
     public static RealMatrix T(RealMatrix R, double tx, double ty, double tz) { // constructs a Rt matrix
-        return null; // TODO
+        double[][] Rt = {
+            {R.getEntry(0, 0), R.getEntry(0, 1), R.getEntry(0, 2), tx},
+            {R.getEntry(1, 0), R.getEntry(1, 1), R.getEntry(1, 2), ty},
+            {R.getEntry(2, 0), R.getEntry(2, 1), R.getEntry(2, 2), tz},
+            {0, 0, 0, 1}
+        };
+        return MatrixUtils.createRealMatrix(Rt);
     }
 
 
@@ -37,7 +78,8 @@ public class MatrixHelp {  // creates homogeneous rotation matrices
 
     public static RealVector normalizeH(RealVector v) {   // returns a copy, as a length 1 homogeneous vector
         RealVector newv = v.getSubVector(0, 3);  // strip the w
-        newv.unitize(); // normalize
+        newv.unitize(); // normalize a.k.a to get the magnitude of the vector = 1 ->
+        // Ensures that vectors remain properly normalized when working in homogeneous coordinates.
         return newv.append(1); // add a w of 1.
     }
   
@@ -171,7 +213,7 @@ public class MatrixHelp {  // creates homogeneous rotation matrices
         System.out.println("Mplus = \n" + MPlus);
         
         // Optionally, check how close these are to the original matrix
-        System.out.println("Original Matrix M = \n" + M);
+        System.out.println("Original Matrix M = " + M);
 
         RealVector v = MatrixUtils.createRealVector(new double[]{1, 2, 3, 1}); // sample to create new vector
     }

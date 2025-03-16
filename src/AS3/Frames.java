@@ -1,5 +1,7 @@
 package AS3;
 
+import jp.vstone.RobotLib.CSotaMotion;
+
 public class Frames {
 
     public enum FrameKeys{  

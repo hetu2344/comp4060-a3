@@ -10,7 +10,7 @@ public class AS3_2 {
     public static void main(String[] args) {
         CRobotUtil.Log(TAG, "Start " + TAG);
 
-        CRobotPose pose = new CRobotPose();  // classes to manage robot pose information
+        // CRobotPose pose = new CRobotPose();  // classes to manage robot pose information
         CRobotMem mem = new CRobotMem(); // connector for the Sota's information system (VSMD), connects via internal socket.
         CSotaMotion motion = new CSotaMotion(mem);   // motion control class. Pass it an instantiated CRobotMem
 
@@ -20,7 +20,9 @@ public class AS3_2 {
             CRobotUtil.Log(TAG, "Rev. " + mem.FirmwareRev.get());
 
             Byte[] ids = motion.getDefaultIDs();
+            // Load servo ranges from file created in Task 1
             ServoRangeTool srt = ServoRangeTool.Load();
+            // Retrieve servo ranges
             CRobotPose targetPose = srt.getMidPose();
             CRobotPose maxPose = srt.getMaxPose();
             CRobotPose minPose = srt.getMinPose();
@@ -30,7 +32,7 @@ public class AS3_2 {
             srt.printMotorRanges();
             
             CRobotUtil.Log(TAG, "Servo Motors On");
-            motion.ServoOn();
+            motion.ServoOn(); // Turn on to execute robot movement
 
             CRobotUtil.Log(TAG, "Moving Robot to neutral position");
 //            Short[] pos = targetPose.getServoAngles(ids);     // read motor positions into an array
@@ -38,7 +40,7 @@ public class AS3_2 {
 //            for(int i = 0; i < pos.length;i++){
 //                CRobotUtil.Log(TAG, "Read Pos. ID:" + ids[i] + " , Pos:" + pos[i]);
 //            }
-            motion.play(targetPose, 2000);
+            motion.play(targetPose, 2000); // move to the neutral position (mid position)
 
             // wait until motion has finished
             motion.waitEndinterpAll();   // also async public boolean isEndInterpAll()
