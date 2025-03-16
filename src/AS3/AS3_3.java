@@ -20,20 +20,15 @@ public class AS3_3 {
             motion.InitRobot_Sota();  // initialize the Sota VSMD
             CRobotUtil.Log(TAG, "Rev. " + mem.FirmwareRev.get());
             
-            Byte[] ids = motion.getDefaultIDs();
-            // ServoRangeTool srt = ServoRangeTool.Load();
-            ServoRangeTool srt = new ServoRangeTool(ids);
-            // ServoRangeTool.Load();
+            ServoRangeTool ranges = ServoRangeTool.Load();
+
 
             // turning off the motor
             CRobotUtil.Log(TAG, "Servo Motors Off");
             motion.ServoOff();
 
             CRobotUtil.Log(TAG, "ServoRange Tool LOAD complete ");
-//            srt.Load();
-
-//            srt.printMotorRanges();
-            // long lastTime = System.currentTimeMillis();
+            
             // clear screen and move cursor to top left
             System.out.print("\033[H\033[2J"); System.out.flush();
             // Enter the while loop
@@ -42,16 +37,16 @@ public class AS3_3 {
 
                 Short[] pos = motion.getReadpos();     // read motor positions into an array
 
-                srt.register(pos);
+                ranges.register(pos);
                 
-                srt.printMotorRanges(pos);
+                ranges.printMotorRanges(pos);
 
                 // wait for 0.1 secs
                 CRobotUtil.wait(100);
             }
 
             CRobotUtil.Log(TAG, "ServoRange Tool SAVE complete ");
-            srt.save();
+            ranges.save();
         }
     }
 }
