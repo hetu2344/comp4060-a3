@@ -21,10 +21,7 @@ public class AS3_1 {
             CRobotUtil.Log(TAG, "Rev. " + mem.FirmwareRev.get());
             
             Byte[] ids = motion.getDefaultIDs();
-            // ServoRangeTool srt = ServoRangeTool.Load();
             ServoRangeTool srt = new ServoRangeTool(ids);
-            ServoRangeTool.Load();
-
 
             // turning off the motor
             CRobotUtil.Log(TAG, "Servo Motors Off");

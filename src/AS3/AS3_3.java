@@ -10,7 +10,7 @@ public class AS3_3 {
     public static void main(String[] args) {
         CRobotUtil.Log(TAG, "Start " + TAG);
 
-        // CRobotPose pose = new CRobotPose();  // classes to manage robot pose information
+        CRobotPose pose = new CRobotPose();  // classes to manage robot pose information
         CRobotMem mem = new CRobotMem(); // connector for the Sota's information system (VSMD), connects via internal socket.
         CSotaMotion motion = new CSotaMotion(mem);   // motion control class. Pass it an instantiated CRobotMem
 
@@ -21,7 +21,6 @@ public class AS3_3 {
             CRobotUtil.Log(TAG, "Rev. " + mem.FirmwareRev.get());
             
             ServoRangeTool ranges = ServoRangeTool.Load();
-
 
             // turning off the motor
             CRobotUtil.Log(TAG, "Servo Motors Off");
@@ -35,11 +34,11 @@ public class AS3_3 {
             while(!motion.isButton_Power()){
                 System.out.print("\033[H"); // move cursor to top left before redrawing
 
-                Short[] pos = motion.getReadpos();     // read motor positions into an array
+                // printing angle values
+                MatrixHelp.printVector(ranges.calcAngles(motion.getReadPose()));
 
-                ranges.register(pos);
-                
-                ranges.printMotorRanges(pos);
+                // printing motor ranges
+                ranges.printMotorRanges(motion.getReadpos());
 
                 // wait for 0.1 secs
                 CRobotUtil.wait(100);
