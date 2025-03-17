@@ -43,6 +43,7 @@ public class AS3_4 {
 			System.out.print("\033[H");  // move to origin
 
 			SotaForwardK FK = new SotaForwardK(ranges.calcAngles(_sotaMotion.getReadPose()));
+			MatrixHelp.printVector(ranges.calcAngles(_sotaMotion.getReadPose()));
 			ranges.printMotorRanges(_sotaMotion.getReadpos());
 
 			MatrixHelp.printFrame("head", FK.frames.get(FrameKeys.HEAD));
