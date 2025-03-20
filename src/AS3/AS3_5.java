@@ -91,7 +91,8 @@ public class AS3_5 {
 		if (DEBUG_PRINT) System.out.println("center motors: "+Arrays.toString(leftCenter));
 
 		boolean first = true;
-		while (!_sotaMotion.isButton_Power()) {  // stop when the power button is pressed
+		for (int z = 0; z < 3; z++) {
+		// while (!_sotaMotion.isButton_Power()) {  // stop when the power button is pressed
 			RealVector currentAngles = ranges.calcAngles(_sotaMotion.getReadPose());
 			if (DEBUG_PRINT) MatrixHelp.printVector("angles", currentAngles);
 
@@ -102,7 +103,7 @@ public class AS3_5 {
 
 			// do IK to solve for motor positions, do incrementally
 			RealVector theta = SotaInverseK.solve(FrameKeys.L_HAND, JType.O, MatrixUtils.createRealVector(left), currentAngles); 
-			theta = SotaInverseK.solve(FrameKeys.R_HAND, JType.O, MatrixUtils.createRealVector(right), theta);
+			// theta = SotaInverseK.solve(FrameKeys.R_HAND, JType.O, MatrixUtils.createRealVector(right), theta);
 			if (this.TEST_MODE == TestMode.EXTREME)
 				theta = SotaInverseK.solve(FrameKeys.HEAD, JType.R, MatrixUtils.createRealVector(head), theta); ; 
 			
@@ -131,7 +132,8 @@ public class AS3_5 {
 			if (h_angle > 1) h_speed *= -1;
 			if (h_angle < -1) h_speed *= -1;
 
-			CRobotUtil.wait(20); // increasa to a high value can help with debugging.
+			// CRobotUtil.wait(20); // increasa to a high value can help with debugging.
+			CRobotUtil.wait(1000);
 		}
 	}
 

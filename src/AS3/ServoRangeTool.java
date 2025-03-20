@@ -152,7 +152,7 @@ public class ServoRangeTool implements Serializable {
         double rad_max = radianLimits[1];
         double pos_min = posLimits[0];
         double pos_max = posLimits[1];
-        short pos = (short) (pos_min + (angle - rad_min) / (rad_max - rad_min) * (pos_max - pos_min));
+        short pos = (short) (pos_min + (pos_max - pos_min) * (angle - rad_min) / (rad_max - rad_min));
         return pos; 
     }
 
