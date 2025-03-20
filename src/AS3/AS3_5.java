@@ -91,7 +91,7 @@ public class AS3_5 {
 		if (DEBUG_PRINT) System.out.println("center motors: "+Arrays.toString(leftCenter));
 
 		boolean first = true;
-		for (int z = 0; z < 3; z++) {
+		for (int z = 0; z < 2; z++) {
 		// while (!_sotaMotion.isButton_Power()) {  // stop when the power button is pressed
 			RealVector currentAngles = ranges.calcAngles(_sotaMotion.getReadPose());
 			if (DEBUG_PRINT) MatrixHelp.printVector("angles", currentAngles);
