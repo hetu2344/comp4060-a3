@@ -25,14 +25,14 @@ public class SotaForwardK {
         // Left hand
         RealMatrix _l_shoulder_to_body = MatrixHelp.T(MatrixHelp.rotX(angles.getEntry(1)), 0.039, 0.0, 0.1415); // 3
         // use rodriques formula to rotate the elbow to the shoulder
-        RealMatrix _l_elbow_to_l_shoulder = MatrixHelp.T(MatrixHelp.rotRodrigues(0.6258053, 0.329192519, 0.707106769, 0), 0.0225, -0.03897, 0.0); // 4
-        RealMatrix l_hand_l_elbow = MatrixHelp.T(MatrixHelp.rotRodrigues(0.6258053, 0.329192519, 0.707106769, angles.getEntry(2)), 0.0225, -0.03897, 0.0); // 18
+        RealMatrix _l_elbow_to_l_shoulder = MatrixHelp.T(MatrixHelp.rotRodrigues(0.6258053, 0.329192519, 0.707106769, angles.getEntry(2)), 0.0225, -0.03897, 0.0); // 4
+        RealMatrix l_hand_l_elbow = MatrixHelp.T(MatrixHelp.rotRodrigues(0.6258053, 0.329192519, 0.707106769, 0), 0.0225, -0.03897, 0.0); // 18
 
         // Right hand
         RealMatrix _r_shoulder_to_body = MatrixHelp.T(MatrixHelp.rotX(angles.getEntry(3)), -0.039, 0.0, 0.1415); // 5
         // use rodriques formula to rotate the elbow to the shoulder
-        RealMatrix _r_elbow_to_r_shoulder = MatrixHelp.T(MatrixHelp.rotRodrigues(-0.6258053, 0.329192519, 0.707106769, 0), -0.0225, -0.03897, 0.0); // 6
-        RealMatrix r_hand_r_elbow = MatrixHelp.T(MatrixHelp.rotRodrigues(-0.6258053, 0.329192519, 0.707106769, angles.getEntry(4)), -0.0225, -0.03897, 0.0); // 19
+        RealMatrix _r_elbow_to_r_shoulder = MatrixHelp.T(MatrixHelp.rotRodrigues(-0.6258053, 0.329192519, 0.707106769, angles.getEntry(4)), -0.0225, -0.03897, 0.0); // 6
+        RealMatrix r_hand_r_elbow = MatrixHelp.T(MatrixHelp.rotRodrigues(-0.6258053, 0.329192519, 0.707106769, 0), -0.0225, -0.03897, 0.0); // 19
 
         // Head Y -> R -> P, but swap order because of CSotaMotion's indexing
         RealMatrix _head_Y_to_body = MatrixHelp.T(MatrixHelp.rotZ(angles.getEntry(5)), 0.0, 0.0, 0.190); // 7

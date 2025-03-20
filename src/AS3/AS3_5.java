@@ -11,14 +11,15 @@ import jp.vstone.RobotLib.*;
 public class AS3_5 {
 	static final String TAG = "AS3_5";   // set this to support the Sota logging system
 
-	final boolean DEBUG_PRINT = false; // turn on to get debug output
+	final boolean DEBUG_PRINT = true; // turn on to get debug output
 	enum TestMode {
 		EASY,
 		MED,
 		HARD,
 		EXTREME;
 	}
-	final TestMode TEST_MODE=TestMode.EXTREME;
+	// final TestMode TEST_MODE=TestMode.EXTREME;
+	final TestMode TEST_MODE=TestMode.EASY;
 
 	// private variables
 	CRobotPose _sotaPose = new CRobotPose();
@@ -76,13 +77,13 @@ public class AS3_5 {
 		_sotaMotion.ServoOn();
 		CRobotUtil.Log(TAG, "Servos On"); // initialize in on state
 		
-		Short[] startPose = new Short[]{-20, -261, -568, 261, 568, 31, -95, 26};  // a middle-stance for waxon/waxoff
+		Short[] startPose = new Short[]{-20, -261, -568, 261, 568, 31, -95, 26};  // a middle-stance for waxon/waxoff 
 		CRobotPose pose = new CRobotPose();
 		pose.SetPose(_sotaMotion.getDefaultIDs(), startPose);
 		_sotaMotion.play(pose, 1000);
 		_sotaMotion.waitEndinterpAll();
 
-		SotaForwardK FK = new SotaForwardK(ranges.calcAngles(_sotaMotion.getReadPose()));
+		SotaForwardK FK = new SotaForwardK(ranges.calcAngles(_sotaMotion.getReadPose())); 
 		double[] leftCenter = MatrixHelp.getTrans(FK.frames.get(FrameKeys.L_HAND)).toArray();
 		double[] rightCenter = MatrixHelp.getTrans(FK.frames.get(FrameKeys.R_HAND)).toArray();
 		double[] headCenter = MatrixHelp.getTrans(FK.frames.get(FrameKeys.HEAD)).toArray();

@@ -1,10 +1,10 @@
 package AS3;
 
 import java.io.*;
-import java.util.Map;
+// import java.util.Map;
 import java.nio.file.Paths;
 import java.nio.file.Files;
-import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealVector;
@@ -20,8 +20,8 @@ public class ServoRangeTool implements Serializable {
     private Short[] _minpos = null; // internal arrays for precalcualted values
     private Short[] _maxpos = null;
     private Short[] _midpos = null;
-    private Map<Byte, Integer> IDtoIndex = null; 
-    private Map<Byte, Double[]> _motorRanges_rad = null; 
+    private TreeMap<Byte, Integer> IDtoIndex = null; 
+    private TreeMap<Byte, Double[]> _motorRanges_rad = null; 
 
     final static String FILENAME = "../resources/robot_pose.txt"; // file destination
 
@@ -31,7 +31,7 @@ public class ServoRangeTool implements Serializable {
         this._minpos = new Short[NUM_MOTORS]; // array of minpos for 8 motors
         this._maxpos = new Short[NUM_MOTORS]; // array of maxpos for 8 motors
         this._midpos = new Short[NUM_MOTORS]; // array of midpos for 8 motors
-        this.IDtoIndex = new HashMap<Byte, Integer>(); // map of servoID to index in the arrays
+        this.IDtoIndex = new TreeMap<Byte, Integer>(); // map of servoID to index in the arrays
         // servoID = i -> index = i-1, for i >= 1 
         IDtoIndex.put(this.servoIDs[0], 0); 
         IDtoIndex.put(this.servoIDs[1], 1); 
@@ -41,10 +41,10 @@ public class ServoRangeTool implements Serializable {
         IDtoIndex.put(this.servoIDs[5], 5);
         IDtoIndex.put(this.servoIDs[6], 6);
         IDtoIndex.put(this.servoIDs[7], 7);
-        this._motorRanges_rad = new HashMap<Byte, Double[]>(); // map of servoID to min, max pos in radians
+        this._motorRanges_rad = new TreeMap<Byte, Double[]>(); // map of servoID to min, max pos in radians
         _motorRanges_rad.put(CSotaMotion.SV_BODY_Y, new Double[] { -1.077363736, 1.077363736 });
         _motorRanges_rad.put(CSotaMotion.SV_L_SHOULDER, new Double[] { 2.617993878, -1.745329252 }); // swap polarity because of backward handedness
-        _motorRanges_rad.put(CSotaMotion.SV_L_ELBOW, new Double[] { 1.745329252, -1.221730476 }); // swap polarity because of backward handedness
+        _motorRanges_rad.put(CSotaMotion.SV_L_ELBOW, new Double[] { -1.745329252, 1.221730476 }); 
         _motorRanges_rad.put(CSotaMotion.SV_R_SHOULDER, new Double[] { -1.745329252, 2.617993878 });
         _motorRanges_rad.put(CSotaMotion.SV_R_ELBOW, new Double[] { -1.221730476, 1.745329252 });
         _motorRanges_rad.put(CSotaMotion.SV_HEAD_Y, new Double[] { -1.495996502, 1.495996502 });
@@ -117,7 +117,7 @@ public class ServoRangeTool implements Serializable {
 
     public CRobotPose calcMotorValues(RealVector angles) { // convert pose in angles to motor positions
         CRobotPose pose = new CRobotPose();
-        Map<Byte, Short> pos = new HashMap<Byte, Short>();
+        TreeMap<Byte, Short> pos = new TreeMap<Byte, Short>();
         for (int i = 0; i < angles.getDimension(); i++) {
             // Add entries of motors to the pose object
             // Convert the angle to motor position
