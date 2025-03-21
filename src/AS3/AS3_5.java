@@ -18,8 +18,8 @@ public class AS3_5 {
 		HARD,
 		EXTREME;
 	}
-	// final TestMode TEST_MODE=TestMode.EXTREME;
-	final TestMode TEST_MODE=TestMode.EASY;
+	final TestMode TEST_MODE=TestMode.MED;
+	// final TestMode TEST_MODE=TestMode.MED;
 
 	// private variables
 	CRobotPose _sotaPose = new CRobotPose();
@@ -91,8 +91,8 @@ public class AS3_5 {
 		if (DEBUG_PRINT) System.out.println("center motors: "+Arrays.toString(leftCenter));
 
 		boolean first = true;
-		for (int z = 0; z < 2; z++) {
-		// while (!_sotaMotion.isButton_Power()) {  // stop when the power button is pressed
+		// for (int z = 0; z < 4; z++) {
+		while (!_sotaMotion.isButton_Power()) {  // stop when the power button is pressed
 			RealVector currentAngles = ranges.calcAngles(_sotaMotion.getReadPose());
 			if (DEBUG_PRINT) MatrixHelp.printVector("angles", currentAngles);
 
@@ -103,9 +103,9 @@ public class AS3_5 {
 
 			// do IK to solve for motor positions, do incrementally
 			RealVector theta = SotaInverseK.solve(FrameKeys.L_HAND, JType.O, MatrixUtils.createRealVector(left), currentAngles); 
-			// theta = SotaInverseK.solve(FrameKeys.R_HAND, JType.O, MatrixUtils.createRealVector(right), theta);
+			theta = SotaInverseK.solve(FrameKeys.R_HAND, JType.O, MatrixUtils.createRealVector(right), theta);
 			if (this.TEST_MODE == TestMode.EXTREME)
-				theta = SotaInverseK.solve(FrameKeys.HEAD, JType.R, MatrixUtils.createRealVector(head), theta); ; 
+				theta = SotaInverseK.solve(FrameKeys.HEAD, JType.R, MatrixUtils.createRealVector(head), theta); 
 			
 			pose = ranges.calcMotorValues(theta);
 			
@@ -120,7 +120,7 @@ public class AS3_5 {
 				_sotaMotion.waitEndinterpAll();
 				first = false;	
 			} else
-				_sotaMotion.play(pose, 100);   /// if robot doesn't move, increase this to 30, 40, 50, etc.
+				_sotaMotion.play(pose, 50);   /// if robot doesn't move, increase this to 30, 40, 50, etc.
 
 			// _sotaMotion.waitEndinterpAll();  // not needed but can turn it on to help with debugging.
 			if (DEBUG_PRINT) System.out.println("motors after:  "+Arrays.toString(_sotaMotion.getReadpos()) );
@@ -132,8 +132,8 @@ public class AS3_5 {
 			if (h_angle > 1) h_speed *= -1;
 			if (h_angle < -1) h_speed *= -1;
 
-			// CRobotUtil.wait(20); // increasa to a high value can help with debugging.
-			CRobotUtil.wait(1000);
+			CRobotUtil.wait(20); // increasa to a high value can help with debugging.
+			// CRobotUtil.wait(1000);
 		}
 	}
 

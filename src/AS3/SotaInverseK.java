@@ -11,7 +11,7 @@ public class SotaInverseK {
 
     private static double NUMERICAL_DELTA_rad = 1e-10;
     private static double DISTANCE_THRESH = 1e-3; // 1mm
-    private static int MAX_TRIES = 15; // loop 15 times
+    private static int MAX_TRIES = 10; // loop 15 times
 
     public enum JType { // We separate the jacobians into origin and rotation components to simplify the
                         // problem
@@ -55,36 +55,27 @@ public class SotaInverseK {
         RealMatrix jacobianR = MatrixUtils.createRealMatrix(JType.OUT_DIM, numMotors); 
 
         for (int i = 0; i < numMotors; i++) {
-            RealVector pertubedAngles = currentAngles.copy(); // copy motor angles of that frame, reset every iteration
-            pertubedAngles.setEntry(frameIndices[i], pertubedAngles.getEntry(frameIndices[i]) + NUMERICAL_DELTA_rad); // theta + delta_theta of the correct joint
-
             // Solve FK for current angles -> f(theta)
             SotaForwardK currentFK = new SotaForwardK(currentAngles); // solve FK for the whole robot
-            double[] currentPoseHomogenous = MatrixHelp.getTrans(currentFK.frames.get(frameType)).toArray(); // but get the current pose of the required frame
-            double[] currentPose = new double[currentPoseHomogenous.length-1]; // remove last element 1
-            for (int j = 0; j < currentPose.length; j++) {
-                currentPose[j] = currentPoseHomogenous[j];
-                // System.out.println("currentPose["+j+"]: " + currentPose[j]);
-            }
+            RealVector currentPose = MatrixHelp.getTrans(currentFK.frames.get(frameType)).getSubVector(0, 3); // but get the current pose of the required frame
+
             // Solve FK for pertubed angles -> f(theta + delta_theta)
+            RealVector pertubedAngles = currentAngles.copy(); // copy motor angles of that frame, reset every iteration
+            pertubedAngles.setEntry(frameIndices[i], pertubedAngles.getEntry(frameIndices[i]) + NUMERICAL_DELTA_rad); // theta + delta_theta of the correct joint
+            
             SotaForwardK perturbedFK = new SotaForwardK(pertubedAngles);
-            double[] perturbedPoseHomogenous = MatrixHelp.getTrans(perturbedFK.frames.get(frameType)).toArray(); // get the pertubed pose of the required frame
-            double[] perturbedPose = new double[perturbedPoseHomogenous.length-1]; // remove last element 1
-            for (int j = 0; j < perturbedPose.length; j++) {
-                perturbedPose[j] = perturbedPoseHomogenous[j];
-                // System.out.println("perturbedPose["+j+"]: " + perturbedPose[j]);
-            }
+            RealVector perturbedPose = MatrixHelp.getTrans(perturbedFK.frames.get(frameType)).getSubVector(0, 3); // get the pertubed pose of the required frame
 
             // derivate = (current - delta) / SMALL_DETA
-            RealVector derivativesO = (MatrixUtils.createRealVector(currentPose).subtract(MatrixUtils.createRealVector(perturbedPose)).mapDivide(NUMERICAL_DELTA_rad));
+            RealVector derivativesO = (perturbedPose.subtract(currentPose)).mapDivide(NUMERICAL_DELTA_rad);
             //System.out.println("derivativesO:" + derivativesO);
             jacobianO.setColumnVector(i, derivativesO); // set the column of the jacobian
 
             // Build rotation Jacobian
-            double[] currentRotation = MatrixHelp.getYPR(currentFK.frames.get(frameType));
-            double[] perturbedRotation = MatrixHelp.getYPR(perturbedFK.frames.get(frameType));
+            RealVector currentRotation = MatrixUtils.createRealVector(MatrixHelp.getYPR(currentFK.frames.get(frameType)));
+            RealVector perturbedRotation = MatrixUtils.createRealVector(MatrixHelp.getYPR(perturbedFK.frames.get(frameType)));
 
-            RealVector derivativesR = (MatrixUtils.createRealVector(currentRotation).subtract(MatrixUtils.createRealVector(perturbedRotation)).mapDivide(NUMERICAL_DELTA_rad));
+            RealVector derivativesR = (perturbedRotation.subtract(currentRotation)).mapDivide(NUMERICAL_DELTA_rad);
             //System.out.println("derivativesR:" + derivativesR);
             //System.out.println();
             jacobianR.setColumnVector(i, derivativesR);
@@ -105,63 +96,51 @@ public class SotaInverseK {
 
     // solves for the target pose on the given frame and type, starting at the current angle configuration.
     static public RealVector solve(FrameKeys frameType, JType jtype, RealVector targetPose, RealVector curMotorAngles) {
+        System.out.println("Solving for " + frameType);
         RealVector solution = curMotorAngles.copy();
-        // Solve FK for current position
-        SotaForwardK FK = new SotaForwardK(curMotorAngles);
-        RealVector translation = FK.frames.get(frameType).getColumnVector(3).getSubVector(0, 3);
-        // System.out.println("homogenousTrans: "+ homogenousTrans);
-        // System.out.println("Printing targetPose");
-        // for (int i = 0; i < targetPose.getDimension(); i++) {
-        //     System.out.println("targetPose["+i+"]" + targetPose.getEntry(i)+" ");        
-        // }
-        // System.out.println();
-        // System.out.println("translation: "+translation);
-        // System.out.println();
-        RealVector error = targetPose.subtract(translation); // x_d - FK(theta_i)
-        double bestError = error.copy().getNorm(); // storing smallest error, starting from the current error
-        MatrixHelp.printVector("Prev error ", error);
-        System.out.println("Prev error norm: "+error.getNorm());
-
+        MatrixHelp.printVector("solution ", solution);
         // Get frame's corresponding motor angles (L_HAND, R_HAND, or HEAD)
         int[] frameIndices = frameType.motorindices; // get index of motor joints in the frame
+
+        // Solve FK for current position
+        SotaForwardK FK = new SotaForwardK(curMotorAngles);
+        RealVector currentPose = MatrixHelp.getTrans(FK.frames.get(frameType)).getSubVector(0, 3);
+        RealVector error = targetPose.subtract(currentPose); // x_d - FK(theta_i)
+
+        double bestError = error.copy().getNorm(); // storing smallest error, starting from the current error
+        MatrixHelp.printVector("Prev error ", error);
+        System.out.println("----- Prev error norm: "+error.getNorm());
 
         int tries = 0;
         while (bestError > DISTANCE_THRESH && tries < MAX_TRIES) {   
             MatrixHelp.printVector("Prev curMotorAngles", curMotorAngles);                 
             SotaInverseK IK = new SotaInverseK(curMotorAngles, frameType); // Make jacobian matrix
             RealMatrix jacobianInverse = IK.Jinv[jtype.ordinal()].get(frameType); // Compute pseudo-inverse of Jacobian matrix
-            // for (int i = 0; i < jacobianInverse.getRowDimension(); i ++) {
-            //     for (int j = 0; j < jacobianInverse.getColumnDimension(); j++) {
-            //         System.out.printf("%10.6f ", jacobianInverse.getEntry(i, j));
-            //     }
-            //     System.out.println();
-            // }
-            // System.out.println();
             
             if (jacobianInverse == null) {
                 throw new RuntimeException("Jacobian inverse is not computed!");
             }
         
             RealVector deltaTheta = jacobianInverse.operate(error); // delta_theta = J+ * error
-            System.out.println("deltaTheta: "+deltaTheta);
+            System.out.println("----- deltaTheta: "+deltaTheta);
             System.out.println();
-            // curMotorAngles = curMotorAngles.add(deltaTheta); 
             // theta_{i+1} = theta + delta_theta - update new motor angle for new FK solver to get the new error
             for (int i = 0; i < deltaTheta.getDimension(); i++) {
-                curMotorAngles.setEntry(frameIndices[i], curMotorAngles.getEntry(frameIndices[i])+deltaTheta.getEntry(i));
+                curMotorAngles.setEntry(frameIndices[i], curMotorAngles.getEntry(frameIndices[i]) + deltaTheta.getEntry(i));
             }
             MatrixHelp.printVector("New curMotorAngles", curMotorAngles);
 
             FK = new SotaForwardK(curMotorAngles); // re-calculate FK
             // Update error
-            error = targetPose.subtract(FK.frames.get(frameType).getColumnVector(3).getSubVector(0, 3)); // update error
+            RealVector newPose = MatrixHelp.getTrans(FK.frames.get(frameType)).getSubVector(0, 3);
+            error = targetPose.subtract(newPose); // update error
             MatrixHelp.printVector("New error ", error);
-            System.out.println("New error norm: "+error.getNorm());
-            System.out.println("Best error norm: "+bestError);
+            System.out.println("----- New error norm: "+error.getNorm());
 
             // Save smallest error and theta
             if (error.getNorm() < bestError) {
                 bestError = error.getNorm(); // replace smaller error
+                System.out.println("----- Best error norm: "+bestError);
                 solution = curMotorAngles.copy(); // update solution to the new set of joint angles with smaller error
                 MatrixHelp.printVector("Solution updated", solution);
             }
